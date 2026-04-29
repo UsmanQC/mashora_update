@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class PatientDiscount extends Model
+{
+    use HasFactory;
+
+    protected $table = 'patients_discounts';
+
+    protected $dates = [
+        'created_at',
+        'updated_at'
+    ];
+
+     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'phone',
+        'full_name',
+        'identity',
+        'identity_nbr',
+        'used',
+        'speciality_id',
+        'speciality',
+        'created_at',
+        'updated_at'
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'updated_at'
+    ];
+}

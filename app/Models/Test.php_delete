@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Test extends Model
+{
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'tests';
+
+    /**
+    * The database primary key value.
+    *
+    * @var string
+    */
+    protected $primaryKey = 'id';
+
+    /**
+     * Attributes that should be mass-assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['test_category_id', 'title', 'title_ar', 'price', 'status','reference','order_show'];
+
+    public function category()
+    {
+        return $this->belongsTo('App\Models\TestCategory', 'test_category_id', 'id');
+    }
+
+    public function references()
+    {
+        return $this->hasMany('App\Models\ReferenceTest', 'test_id');
+    }
+    
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = ['created_at', 'updated_at', 'status'];
+
+    public function getTitleAttribute($value)
+    {
+        return \App::getLocale() == 'en' ? $value : $this->title_ar;
+    }
+}

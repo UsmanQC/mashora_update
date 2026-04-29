@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+
+class AppointmentReport extends Model
+{
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'appointment_reports';
+
+    /**
+    * The database primary key value.
+    *
+    * @var string
+    */
+    protected $primaryKey = 'id';
+
+    /**
+     * Attributes that should be mass-assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['report_path', 'appointment_id', 'uploaded_by_doctor'];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = ['report_path', 'appointment_id', 'created_at', 'updated_at'];
+
+    public function appointment()
+    {
+        return $this->belongsTo('App\Models\Appointment');
+    }
+
+    /**
+     * Attributes
+     */
+    protected $appends = ['report'];
+
+    public function getReportAttribute()
+    {
+        return $this->report_path ?  url($this->report_path): "";
+    }
+}

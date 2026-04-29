@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class TimeSlot extends Model
+{
+    use HasFactory;
+
+    /**
+     * Attributes that should be mass-assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['availability_id', 'start_time', 'end_time', 'is_available'];
+
+    /**
+     * Get the availability that owns the time slot.
+     */
+    public function availability(): BelongsTo
+    {
+        return $this->belongsTo(Availability::class);
+    }
+}

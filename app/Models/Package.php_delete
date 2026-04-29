@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Package extends Model
+{
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'packages';
+
+    /**
+    * The database primary key value.
+    *
+    * @var string
+    */
+    protected $primaryKey = 'id';
+
+    /**
+     * Attributes that should be mass-assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['package_category_id', 'title', 'title_ar', 'price', 'number_of_test', 'image_path', 'sort_description', 'instructions', 'content', 'sort_description_ar', 'instructions_ar', 'content_ar', 'status','reference','order_show'];
+
+    public function category()
+    {
+        return $this->belongsTo('App\Models\PackageCategory', 'package_category_id', 'id');
+    }
+
+    public function tests()
+    {
+        return $this->belongsToMany('App\Models\Test', 'package_test', 'package_id','test_id');
+    }
+    
+    protected $appends = ['image_url'];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = ['created_at', 'updated_at', 'image_path', 'status'];
+
+    public function getImageUrlAttribute()
+    {
+        if($this->image_path != ""){
+            return asset('storage/'.$this->image_path);              
+        }
+        return "";        
+    } 
+
+    public function getTitleAttribute($value)
+    {
+        return \App::getLocale() == 'en' ? $value : $this->title_ar;
+    }
+
+    public function getShortDescriptionAttribute($value)
+    {
+        return \App::getLocale() == 'en' ? $value : $this->sort_description_ar;
+    }
+
+    public function getInstructionsAttribute($value)
+    {
+        return \App::getLocale() == 'en' ? $value : $this->instructions_ar;
+    }
+
+    public function getContentAttribute($value)
+    {
+        return \App::getLocale() == 'en' ? $value : $this->content_ar;
+    }
+}
