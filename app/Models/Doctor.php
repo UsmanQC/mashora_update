@@ -6,6 +6,8 @@ use App\Traits\Doctors;
 use App\Traits\NotificationAble;
 use App\Traits\RequiresSignature;
 use Creagia\LaravelSignPad\Contracts\CanBeSigned;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,11 +22,16 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Doctor extends Authenticatable implements HasMedia, CanBeSigned
+class Doctor extends Authenticatable implements CanBeSigned, FilamentUser, HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable, NotificationAble, Doctors, Sortable, InteractsWithMedia, SoftDeletes, RequiresSignature;
+    use Doctors, HasApiTokens, HasFactory, InteractsWithMedia, Notifiable, NotificationAble, RequiresSignature, SoftDeletes, Sortable;
 
-    protected $guard = 'doctors';
+    protected $guard = 'doctor';
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $panel->getId() === 'doctor';
+    }
 
     /**
      * Was: LaravelFCM HasPushToken — brozot/laravel-fcm does not support Laravel 13.
@@ -34,6 +41,7 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
     {
         return $this->attributes['push_token'] ?? null;
     }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -85,7 +93,7 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
         'degree_id' => 'integer',
         'speciality_id' => 'integer',
         'email_verified_at' => 'datetime',
-        //'gender' => 'integer',
+        // 'gender' => 'integer',
         'experience' => 'integer',
         'type' => 'integer',
         'profile_completed' => 'boolean',
@@ -189,7 +197,8 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
     /**
      * Get of the user's Ratings.
      */
-    public function ratings() {
+    public function ratings()
+    {
         return $this->hasMany(Rating::class);
     }
 
@@ -248,9 +257,8 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
      */
     public function setCountryCodeAttribute($value)
     {
-        $this->attributes['country_code'] = (is_null($value) || $value == "")?"+966":$value;
+        $this->attributes['country_code'] = (is_null($value) || $value == '') ? '+966' : $value;
     }
-
 
     public function getRecentReviewAttribute()
     {
@@ -279,23 +287,22 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
         }
         else
         {*/
-            // if($this->doctor_price > 0){
-            //     return $this->doctor_price;
-            // }elseif(!empty($this->degree)){
-            //     return $this->degree->price;
-            // }
-        //}
-        return "40";
+        // if($this->doctor_price > 0){
+        //     return $this->doctor_price;
+        // }elseif(!empty($this->degree)){
+        //     return $this->degree->price;
+        // }
+        // }
+        return '40';
     }
 
     /**
      * This is for the Chatify //avatar
-     *
      */
     public function getAvatarAttribute()
     {
         return $this->profile_photo_path
-                    ?  Storage::url($this->profile_photo_path)
+                    ? Storage::url($this->profile_photo_path)
                     : $this->defaultProfilePhotoUrl();
     }
 
@@ -303,26 +310,27 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
     public function getProfilePhotoUrlAttribute()
     {
         return $this->profile_photo_path
-                    ?  Storage::url($this->profile_photo_path)
+                    ? Storage::url($this->profile_photo_path)
                     : $this->defaultProfilePhotoUrl();
     }
 
     /** signature_url */
     public function getSignatureUrlAttribute()
     {
-        return !empty($this->sign) ? asset(Storage::url(optional($this->sign)->getSignatureImagePath())) : '';
+        return ! empty($this->sign) ? asset(Storage::url(optional($this->sign)->getSignatureImagePath())) : '';
     }
 
     public function getProfileDetailUrlAttribute()
     {
-        return $this->profile_detail_path ?   url($this->profile_detail_path): "";
+        return $this->profile_detail_path ? url($this->profile_detail_path) : '';
     }
 
     public function getExperienceYearAttribute()
     {
-        if(!is_null($this->experience) && $this->experience != ""){
-            return ($this->experience > 1)?$this->experience." years experience":$this->experience." year experience";
+        if (! is_null($this->experience) && $this->experience != '') {
+            return ($this->experience > 1) ? $this->experience.' years experience' : $this->experience.' year experience';
         }
+
         return '';
     }
 
@@ -355,29 +363,26 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
 
     public function getSexAttribute()
     {
-        if(\App::getLocale() == 'en')
-        {
-            if($this->gender == 'male'){
-                return "Male";
-            }elseif($this->gender == 'female'){
-                return "Female";
+        if (\App::getLocale() == 'en') {
+            if ($this->gender == 'male') {
+                return 'Male';
+            } elseif ($this->gender == 'female') {
+                return 'Female';
             }
-        }
-        else
-        {
-            if($this->gender == 'male'){
-                return "ذكر";
-            }elseif($this->gender == 'female'){
-                return "أنثى";
+        } else {
+            if ($this->gender == 'male') {
+                return 'ذكر';
+            } elseif ($this->gender == 'female') {
+                return 'أنثى';
             }
         }
 
-        return "";
+        return '';
     }
 
     public function getAverageRatingAttribute()
     {
-        return (int)$this->reviews()->average('rating');
+        return (int) $this->reviews()->average('rating');
     }
 
     public function getAboutLocaleAttribute($value)
@@ -417,7 +422,8 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
     /**
      * Get of the Doctor's favoris.
      */
-    public function favoris() {
+    public function favoris()
+    {
         return $this->hasMany(Favori::class);
     }
 
@@ -429,7 +435,7 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
         return $this->morphMany(DeviceToken::class, 'userable');
     }
 
-        /**
+    /**
      * Scope a query to only include active users.
      */
     public function scopeActive($query): void
@@ -439,7 +445,6 @@ class Doctor extends Authenticatable implements HasMedia, CanBeSigned
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('medical_license')->singleFile();
+        $this->addMediaCollection('medical_license');
     }
-
 }

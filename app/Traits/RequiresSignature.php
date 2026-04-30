@@ -18,7 +18,7 @@ trait RequiresSignature
 
     public function hasBeenSigned(): bool
     {
-        return ! is_null($this->signature);
+        return $this->sign()->exists();
     }
 
     public function deleteSignature(): bool

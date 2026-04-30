@@ -2,20 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Model;
-use App\Helpers\Uuidable;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TemporaryAppointment extends Model
 {
-    use HasFactory, Uuidable;
-
-    public $incrementing = false;
-
-    protected $keyType = 'uuid';
+    use HasFactory;
+    use HasUuids;
 
     /**
      * Attributes that should be mass-assignable.
@@ -23,6 +20,7 @@ class TemporaryAppointment extends Model
      * @var array
      */
     protected $fillable = ['doctor_id', 'user_id', 'appointment_id', 'scheduled_at', 'appointment_date', 'start_time', 'end_time', 'duration', 'extend_at', 'patient_name', 'patient_email', 'patient_phone', 'appointment_for', 'patient_notes', 'communications', 'invoice_id', 'invoice_url', 'payment_response', 'payment_status', 'amount', 'discount', 'tax', 'total', 'appointment_type', 'instant_counseling', 'payment_session_id', 'payment_invoice_id', 'payment_invoice_url'];
+
     /**
      * Get the doctor that owns the TemporaryAppointment.
      */
@@ -30,7 +28,6 @@ class TemporaryAppointment extends Model
     {
         return $this->belongsTo(Doctor::class);
     }
-
 
     /**
      * Interact with the communications.
@@ -57,16 +54,17 @@ class TemporaryAppointment extends Model
     public function scopeAvailableForFiveMin($query, $doctorId, $startTime, $endTime, $date = null)
     {
         $date = $date ?: now()->format('Y-m-d');
-        return $query->where(function ($subquery) use ($startTime, $endTime, $date) {
-            $subquery->where(function ($subsubquery) use ($startTime, $endTime, $date) {
+
+        return $query->where(function ($subquery) use ($startTime, $endTime) {
+            $subquery->where(function ($subsubquery) use ($startTime, $endTime) {
                 $subsubquery->where('start_time', '>=', $startTime)
                     ->where('start_time', '<', $endTime);
             })
-                ->orWhere(function ($subsubquery) use ($startTime, $endTime, $date) {
+                ->orWhere(function ($subsubquery) use ($startTime, $endTime) {
                     $subsubquery->where('end_time', '>', $startTime)
                         ->where('end_time', '<=', $endTime);
                 })
-                ->orWhere(function ($subsubquery) use ($startTime, $endTime, $date) {
+                ->orWhere(function ($subsubquery) use ($startTime, $endTime) {
                     $subsubquery->where('start_time', '<', $startTime)
                         ->where('end_time', '>', $endTime);
                 });

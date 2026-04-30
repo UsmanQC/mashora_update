@@ -11,6 +11,13 @@ class Communication extends Model
     use HasFactory, SoftDeletes;
 
     /**
+     * Non-incrementing string PK ({@code communication} enum column).
+     */
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
+    /**
      * The primary key associated with the table.
      *
      * @var string
